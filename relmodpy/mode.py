@@ -3,7 +3,7 @@ from scipy.optimize import minimize
 
 from .perturbations_interior import (
         solve_perturbations_interior,
-        solve_perturbations_interior_low_frequency)
+        solve_perturbations_interior_low_frequency, X)
 from .perturbations_exterior import (
         solve_perturbations_exterior, transformation, Ain, Aout)
 from .muller import muller
@@ -287,3 +287,31 @@ class Mode:
         else:
             raise ValueError('r is outside range')
         return W
+
+    def X(self, r):
+        """Return Lagrangian pressure perturbation function `X`.
+
+        Parameters
+        ----------
+        r : float
+            Radial coordinate [km].
+
+        Returns
+        -------
+        X : complex
+            Lagrangian pressure perturbation function `X` [km^-2].
+        """
+        if self.r0 <= r <= self.__rmatch:
+            y = (self.__x[0]*self.__sol1.sol(r)
+                 + self.__x[1]*self.__sol2.sol(r))
+            if self.omega.real*self.background.M < 0.01:
+                return X(r, y, self.background, self.l, self.omega**2)
+            else:
+                return y[-1]
+        elif self.__rmatch < r <= self.background.R:
+            H1, K, W, X = (self.__x[2]*self.__sol3.sol(r)
+                           + self.__x[3]*self.__sol4.sol(r)
+                           + self.__x[4]*self.__sol5.sol(r))
+            return X
+        else:
+            raise ValueError('r is outside range')
