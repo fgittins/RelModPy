@@ -63,10 +63,13 @@ in the root directory. Warning: this can take quite a while...
 ## References
 [1] Unno *et al.* (1989), "Nonradial oscillations of stars," University of
     Tokyo Press, Tokyo.
+
 [2] Detweiler and Lindblom (1985), "On the nonradial pulsations of general
     relativistic stellar models," *Astrophys. J.* **292**, 12.
+
 [3] Andersson, Kokkotas and Schutz (1995), "A new numerical approach to the
     oscillation modes of relativistic stars," *Mon. Not. R. Astron. Soc.*
     **274** (4), 1039.
+
 [4] Krüger (2015), "Seismology of adolescent general relativistic neutron
     stars," PhD thesis, University of Southampton.
