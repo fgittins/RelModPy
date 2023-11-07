@@ -11,8 +11,10 @@ class StratifiedEnergyPolytrope(EnergyPolytrope):
         return 1.1*self.Gamma(p)
 
 
-eos = StratifiedEnergyPolytrope(1, 100)
-star = Star(eos, 5.52e-3)
+n, K = 1, 100
+eos = StratifiedEnergyPolytrope(n, K)
+pc = 5.52e-3
+star = Star(eos, pc)
 
 print(f'R = {star.R} km, '
       + f'M = {units.mass_geometric_to_Msol*star.M} Msol')
@@ -37,17 +39,19 @@ print(f'Re[omega / (2 pi)] = {mode.omega.real/(2*np.pi)/units.time_geometric_to_
 
 # plot eigenfunctions
 r = np.linspace(mode.r0, star.R, num=100)
-H1, K, W = [], [], []
+H1, K, W, X = [], [], [], []
 for r0 in r:
     H1.append(mode.H1(r0))
     K.append(mode.K(r0))
     W.append(mode.W(r0))
-H1, K, W = np.array(H1), np.array(K), np.array(W)
+    X.append(mode.X(r0))
+H1, K, W, X = np.array(H1), np.array(K), np.array(W), np.array(X)
 
 fig, ax = plt.subplots()
 ax.plot(r, H1.real, color='C0', label=r'$\mathrm{Re}(H_1)$')
 ax.plot(r, K.real, color='C1', label=r'$\mathrm{Re}(K)$')
 ax.plot(r, W.real, color='C2', label=r'$\mathrm{Re}(W)$ / km$^2$')
+ax.plot(r, X.real, color='C3', label=r'$\mathrm{Re}(X)$ / km$^{-2}$')
 ax.set_xlabel(r'$r$ / km')
 ax.legend()
 fig.tight_layout()
@@ -56,6 +60,7 @@ fig, ax = plt.subplots()
 ax.plot(r, H1.imag, color='C0', label=r'$\mathrm{Im}(H_1)$')
 ax.plot(r, K.imag, color='C1', label=r'$\mathrm{Im}(K)$')
 ax.plot(r, W.imag, color='C2', label=r'$\mathrm{Im}(W)$ / km$^2$')
+ax.plot(r, X.imag, color='C3', label=r'$\mathrm{Im}(X)$ / km$^{-2}$')
 ax.set_xlabel(r'$r$ / km')
 ax.legend()
 fig.tight_layout()
