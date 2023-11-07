@@ -9,8 +9,8 @@ Notes
 -----
 Assumes geometric units, where G = c = 1.
 
-* For `Star` class, `eos` object must have `epsilon(p)` method.
-* For `Mode` class, `eos` object contained in `background` must also have
+* For `Star` class, `EOS` object must have `epsilon(p)` method.
+* For `Mode` class, `EOS` object contained in `background` must also have
 `Gamma(p)` and `Gamma1(p)` methods.
 """
 
