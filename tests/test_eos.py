@@ -4,7 +4,7 @@ from unittest import TestCase
 
 import numpy as np
 
-from mode.eos import Polytrope, EnergyPolytrope
+from relmodpy.eos import Polytrope, EnergyPolytrope
 
 
 class TestPolytrope(TestCase):

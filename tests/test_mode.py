@@ -17,8 +17,8 @@ References
 
 from unittest import TestCase
 
-from mode import Mode, Star
-from mode.eos import EnergyPolytrope
+from relmodpy import Mode, Star
+from relmodpy.eos import EnergyPolytrope
 
 
 class TestMuller(TestCase):

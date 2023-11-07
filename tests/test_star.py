@@ -4,8 +4,8 @@ from unittest import TestCase
 
 import numpy as np
 
-from mode import Star
-from mode.eos import EnergyPolytrope
+from relmodpy import Star
+from relmodpy.eos import EnergyPolytrope
 
 
 class TestEnergyPolytrope(TestCase):
