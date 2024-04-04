@@ -33,7 +33,7 @@ Provided the equation of state and the computed background, one is in a position
 ```
 from relmodpy import Mode
 
-mode = mode(star)
+mode = Mode(star)
 ```
 Note: `mode` accesses the equation of state from `star`, since the background and mode will use the same equation of state.
 
