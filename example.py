@@ -1,3 +1,7 @@
+"""Script demonstrates example of computing oscillation modes of star
+described by polytropic equation of state.
+"""
+
 import numpy as np
 import matplotlib.pyplot as plt
 
