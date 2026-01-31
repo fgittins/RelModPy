@@ -1,9 +1,12 @@
+from collections.abc import Callable
+
+
 class Results:
     """Represents root-finding result.
 
     Attributes
     ----------
-    root : float
+    root : complex
         Estimated root.
     iterations : int
         Number of iterations needed to find root.
@@ -13,14 +16,22 @@ class Results:
         Description of cause of termination.
     """
 
-    def __init__(self, root, iterations, converged, flag):
+    def __init__(
+        self, root: complex, iterations: int, converged: bool, flag: str
+    ) -> None:
         self.root = root
         self.iterations = iterations
         self.converged = converged
         self.flag = flag
 
 
-def muller(f, x, xtol=1e-5, ftol=1e-5, maxiter=50):
+def muller(
+    f: Callable[[complex], complex],
+    x: tuple[complex, complex, complex],
+    xtol: float = 1e-5,
+    ftol: float = 1e-5,
+    maxiter: int = 50,
+) -> Results:
     """Muller's method for root finding of scalar function.
 
     Implementation is based on description of Muller's method in Sec. 9.5.2 of

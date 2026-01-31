@@ -32,11 +32,13 @@ References
     gravitational perturbations," Astrophys. J. 166, 197.
 """
 
+from typing import Any
+
 import numpy as np
 from scipy.integrate import solve_ivp
 
 
-def V(r, M, n):
+def V(r: float, M: float, n: int) -> float:
     """Effective potential from Zerilli equation.
 
     Parameters
@@ -61,7 +63,7 @@ def V(r, M, n):
     )
 
 
-def dVdr(r, M, n):
+def dVdr(r: float, M: float, n: int) -> float:
     """Derivative of effective potential from Zerilli equation.
 
     Parameters
@@ -88,7 +90,7 @@ def dVdr(r, M, n):
     ) / (r**5 * (n * r + 3 * M) ** 3)
 
 
-def U(r, M, n, omega2):
+def U(r: float, M: float, n: int, omega2: complex) -> complex:
     """New effective potential.
 
     Parameters
@@ -112,7 +114,7 @@ def U(r, M, n, omega2):
     )
 
 
-def dUdr(r, M, n, omega2):
+def dUdr(r: float, M: float, n: int, omega2: complex) -> complex:
     """Derivative of new effective potential.
 
     Parameters
@@ -138,7 +140,14 @@ def dUdr(r, M, n, omega2):
     ) / (r * (2 * M - r)) ** 3
 
 
-def modified_zerilli(rho, y, R, M, n, omega):
+def modified_zerilli(
+    rho: float,
+    y: np.typing.NDArray[np.complexfloating],
+    R: float,
+    M: float,
+    n: int,
+    omega: complex,
+) -> list[complex]:
     """Exterior perturbation equation derived from Zerilli equation with
     introduction of new variable `q`.
 
@@ -176,7 +185,14 @@ def modified_zerilli(rho, y, R, M, n, omega):
     return [dqdrho, d2qdrho2]
 
 
-def jac_modified_zerilli(rho, y, R, M, n, omega):
+def jac_modified_zerilli(
+    rho: float,
+    y: np.typing.NDArray[np.complexfloating],
+    R: float,
+    M: float,
+    n: int,
+    omega: complex,
+) -> list[list[complex]]:
     """Jacobian of exterior perturbation equation `modified_zerilli`.
 
     Parameters
@@ -214,7 +230,7 @@ def jac_modified_zerilli(rho, y, R, M, n, omega):
     ]
 
 
-def solve_perturbations_exterior(R, M, n, omega):
+def solve_perturbations_exterior(R: float, M: float, n: int, omega: complex) -> Any:
     """Integrate perturbation equation along straight line in complex plane
     from far from star to its surface.
 
@@ -255,7 +271,7 @@ def solve_perturbations_exterior(R, M, n, omega):
     Uinf = U(rinf, M, n, omega**2)
     dUdrinf = dUdr(rinf, M, n, omega**2)
 
-    sol = solve_ivp(
+    sol = solve_ivp(  # type: ignore[call-overload]
         modified_zerilli,
         [rhoinf, 0],
         [Uinf ** (1 / 2), np.exp(1j * theta) * dUdrinf / (2 * Uinf ** (1 / 2))],
@@ -269,7 +285,9 @@ def solve_perturbations_exterior(R, M, n, omega):
     return sol
 
 
-def transformation(r, x, M, n):
+def transformation(
+    r: float, x: tuple[complex, complex], M: float, n: int
+) -> np.typing.NDArray[np.complexfloating]:
     """Transform metric perturbations to functions in Zerilli equation.
 
     Parameters
@@ -300,7 +318,9 @@ def transformation(r, x, M, n):
     return b
 
 
-def Ain(r, q, dqdr, Z, dZdrstar, M):
+def Ain(
+    r: float, q: complex, dqdr: complex, Z: complex, dZdrstar: complex, M: float
+) -> complex:
     """Amplitude of ingoing radiation.
 
     Parameters
@@ -326,7 +346,9 @@ def Ain(r, q, dqdr, Z, dZdrstar, M):
     return r * ((M / r**2 + (1 - 2 * M / r) * (dqdr / (2 * q) + 1j * q)) * Z + dZdrstar)
 
 
-def Aout(r, q, dqdr, Z, dZdrstar, M):
+def Aout(
+    r: float, q: complex, dqdr: complex, Z: complex, dZdrstar: complex, M: float
+) -> complex:
     """Amplitude of outgoing radiation.
 
     Parameters

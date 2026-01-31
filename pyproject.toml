@@ -22,3 +22,31 @@ dev = [
     "ruff>=0.14.14",
     "scipy-stubs>=1.17.0.2",
 ]
+
+[tool.mypy]
+# Import discovery
+mypy_path = "src"
+exclude = [
+    "scripts",
+    "tests",
+]
+# Disallow dynamic typing
+disallow_any_generics = true
+disallow_subclassing_any = true
+# Untyped definitions and calls
+disallow_untyped_calls = true
+disallow_untyped_defs = true
+disallow_incomplete_defs = true
+check_untyped_defs = true
+disallow_untyped_decorators = true
+# Configuration warnings
+warn_redundant_casts = true
+warn_unused_ignores = true
+warn_return_any = true
+# Miscellaneous strictness flags
+extra_checks = true
+no_implicit_reexport = true
+strict_equality = true
+strict_bytes = true
+# Miscellaneous
+warn_unused_configs = true

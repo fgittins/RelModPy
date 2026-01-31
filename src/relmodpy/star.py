@@ -2,6 +2,8 @@ import numpy as np
 from scipy.integrate import solve_ivp
 from scipy.interpolate import CubicSpline
 
+from .eos import EOS
+
 
 class Star:
     """Structure of relativistic star.
@@ -54,7 +56,7 @@ class Star:
     Assumes geometric units, where G = c = 1.
     """
 
-    def __init__(self, eos, pc):
+    def __init__(self, eos: EOS, pc: float) -> None:
         self.eos = eos
         self.pc = pc
         self.r0 = 1e-5
@@ -93,7 +95,7 @@ class Star:
         # interpolate metric potential separately
         self.nu = CubicSpline(self.rsol, self.nusol, extrapolate=False)
 
-    def structure(self, r, y):
+    def structure(self, r: float, y: np.typing.NDArray[np.floating]) -> list[float]:
         """Stellar structure equations.
 
         Parameters
@@ -126,15 +128,15 @@ class Star:
 
         return [dmdr, dpdr, dnudr]
 
-    def surface(self, r, y):
+    def surface(self, r: float, y: np.typing.NDArray[np.floating]) -> float:
         """Definition of stellar surface: `p = 0`."""
         m, p, nu = y
-        return p
+        return float(p)
 
     surface.terminal = True  # type: ignore[attr-defined]
     surface.direction = -1  # type: ignore[attr-defined]
 
-    def m(self, r):
+    def m(self, r: float) -> float:
         """Return mass.
 
         Parameters
@@ -147,10 +149,11 @@ class Star:
         m : float
             Mass `m` [km] at `r`.
         """
+        assert self.__sol.sol is not None
         m, p, nu = self.__sol.sol(r)
         return m
 
-    def p(self, r):
+    def p(self, r: float) -> float:
         """Return pressure.
 
         Parameters
@@ -163,5 +166,6 @@ class Star:
         p : float
             Pressure `p` [km^-2] at `r`.
         """
+        assert self.__sol.sol is not None
         m, p, nu = self.__sol.sol(r)
         return p

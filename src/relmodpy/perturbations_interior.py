@@ -25,11 +25,21 @@ References
     stars," PhD thesis, University of Southampton.
 """
 
+from typing import Any
+
 import numpy as np
 from scipy.integrate import solve_ivp
 
+from .star import Star
 
-def perturbations_interior(r, y, background, ell, omega2):
+
+def perturbations_interior(
+    r: float,
+    y: np.typing.NDArray[np.complexfloating],
+    background: Star,
+    ell: int,
+    omega2: complex,
+) -> list[complex]:
     """Interior polar perturbation equations for relativistic star.
 
     Parameters
@@ -152,7 +162,9 @@ def perturbations_interior(r, y, background, ell, omega2):
     return [dH1dr, dKdr, dWdr, dXdr]
 
 
-def taylor_coefficients(Kc, Wc, background, ell, omega2):
+def taylor_coefficients(
+    Kc: complex, Wc: complex, background: Star, ell: int, omega2: complex
+) -> tuple[complex, complex, complex, complex, complex, complex]:
     """Calculate coefficients for Taylor expansion near centre.
 
     Parameters
@@ -342,7 +354,11 @@ def taylor_coefficients(Kc, Wc, background, ell, omega2):
     return (H1c, d2H1dr2c, d2Kdr2c, d2Wdr2c, Xc, d2Xdr2c)
 
 
-def solve_perturbations_interior(background, ell, omega2):
+def solve_perturbations_interior(
+    background: Star, ell: int, omega2: complex
+) -> tuple[
+    np.typing.NDArray[np.complexfloating], object, object, object, object, object
+]:
     """Integrate perturbation equations in interior.
 
     Parameters
@@ -497,7 +513,13 @@ def solve_perturbations_interior(background, ell, omega2):
     return (x, sol1, sol2, sol3, sol4, sol5)
 
 
-def perturbations_interior_low_frequency(r, y, background, ell, omega2):
+def perturbations_interior_low_frequency(
+    r: float,
+    y: np.typing.NDArray[np.complexfloating],
+    background: Star,
+    ell: int,
+    omega2: complex,
+) -> list[complex]:
     """Interior polar perturbation equations for relativistic star with
     formulation appropriate for low-frequency oscillations.
 
@@ -600,7 +622,9 @@ def perturbations_interior_low_frequency(r, y, background, ell, omega2):
     return [dH1dr, dKdr, dWdr, dVdr]
 
 
-def taylor_coefficients_low_frequency(Kc, Wc, background, ell, omega2):
+def taylor_coefficients_low_frequency(
+    Kc: complex, Wc: complex, background: Star, ell: int, omega2: complex
+) -> tuple[complex, complex, complex, complex, complex, complex]:
     """Calculate coefficients for Taylor expansion near centre with formulation
     appropriate to low-frequency oscillations.
 
@@ -715,7 +739,11 @@ def taylor_coefficients_low_frequency(Kc, Wc, background, ell, omega2):
     return (H1c, d2H1dr2c, d2Kdr2c, d2Wdr2c, Vc, d2Vdr2c)
 
 
-def solve_perturbations_interior_low_frequency(background, ell, omega2):
+def solve_perturbations_interior_low_frequency(
+    background: Star, ell: int, omega2: complex
+) -> tuple[
+    np.typing.NDArray[np.complexfloating], Any, Any, Any, Any, Any
+]:
     """Integrate perturbation equations in interior with formulation
     appropriate for low-frequency oscillations.
 
@@ -876,7 +904,13 @@ def solve_perturbations_interior_low_frequency(background, ell, omega2):
     return (x, sol1, sol2, sol3, sol4, sol5)
 
 
-def X(r, y, background, ell, omega2):
+def X(
+    r: float,
+    y: np.typing.NDArray[np.complexfloating],
+    background: Star,
+    ell: int,
+    omega2: complex,
+) -> complex:
     """Return Lagrangian pressure perturbation function.
 
     Parameters
@@ -934,8 +968,11 @@ def X(r, y, background, ell, omega2):
         * (dnudr / explambda ** (1 / 2) * W + 2 * r * omega2 / expnu * V)
     ) / ((n + 1) * r - r / (2 * explambda) * (r * dlambdadr + 2))
 
-    return (epsilon + p) * (
-        omega2 / expnu ** (1 / 2) * V
-        + dnudr / (2 * r) * (expnu / explambda) ** (1 / 2) * W
-        + expnu ** (1 / 2) / 2 * H0
+    return complex(
+        (epsilon + p)
+        * (
+            omega2 / expnu ** (1 / 2) * V
+            + dnudr / (2 * r) * (expnu / explambda) ** (1 / 2) * W
+            + expnu ** (1 / 2) / 2 * H0
+        )
     )

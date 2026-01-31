@@ -24,17 +24,17 @@ class EOS(ABC):
     """
 
     @abstractmethod
-    def epsilon(self, p):
+    def epsilon(self, p: float) -> float:
         """Return energy density [km^-2]."""
         ...
 
     @abstractmethod
-    def Gamma(self, p):
+    def Gamma(self, p: float) -> float:
         """Return adiabatic index [dimensionless] associated with background."""
         ...
 
     @abstractmethod
-    def Gamma1(self, p):
+    def Gamma1(self, p: float) -> float:
         """Return adiabatic index [dimensionless] associated with perturbations."""
         ...
 
@@ -45,7 +45,7 @@ class Barotrope(EOS):
     Methods are functions of pressure `p` [km^-2].
     """
 
-    def Gamma1(self, p):
+    def Gamma1(self, p: float) -> float:
         """Return adiabatic index [dimensionless] associated with
         perturbations.
 
@@ -73,15 +73,15 @@ class Polytrope(Barotrope):
     Gamma1
     """
 
-    def __init__(self, n, K):
+    def __init__(self, n: int, K: float) -> None:
         self.n = n
         self.K = K
 
-    def epsilon(self, p):
+    def epsilon(self, p: float) -> float:
         """Return energy density [km^-2]."""
-        return (p / self.K) ** (self.n / (self.n + 1)) + self.n * p
+        return float((p / self.K) ** (self.n / (self.n + 1)) + self.n * p)
 
-    def Gamma(self, p):
+    def Gamma(self, p: float) -> float:
         """Return adiabatic index [dimensionless] associated with background."""
         return 1 + 1 / self.n
 
@@ -105,14 +105,16 @@ class EnergyPolytrope(Barotrope):
     Gamma1
     """
 
-    def __init__(self, n, K):
+    def __init__(self, n: int, K: float) -> None:
         self.n = n
         self.K = K
 
-    def epsilon(self, p):
+    def epsilon(self, p: float) -> float:
         """Return energy density [km^-2]."""
-        return (p / self.K) ** (self.n / (self.n + 1))
+        return float((p / self.K) ** (self.n / (self.n + 1)))
 
-    def Gamma(self, p):
+    def Gamma(self, p: float) -> float:
         """Return adiabatic index [dimensionless] associated with background."""
-        return (1 + 1 / self.n) * (1 + self.K * (p / self.K) ** (1 / (self.n + 1)))
+        return float(
+            (1 + 1 / self.n) * (1 + self.K * (p / self.K) ** (1 / (self.n + 1)))
+        )

@@ -15,8 +15,9 @@ References
     stars," PhD thesis, University of Southampton.
 """
 
-import pytest
 from unittest import TestCase
+
+import pytest
 
 from relmodpy import Mode, Star
 from relmodpy.eos import EnergyPolytrope
