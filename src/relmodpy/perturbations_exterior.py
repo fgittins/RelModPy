@@ -53,8 +53,12 @@ def V(r, M, n):
     V : float
         Potential [km^-2].
     """
-    return 2*(1 - 2*M/r)*(n**2*(n + 1)*r**3 + 3*n**2*M*r**2 + 9*n*M**2*r
-                          + 9*M**3)/(r**3*(n*r + 3*M)**2)
+    return (
+        2
+        * (1 - 2 * M / r)
+        * (n**2 * (n + 1) * r**3 + 3 * n**2 * M * r**2 + 9 * n * M**2 * r + 9 * M**3)
+        / (r**3 * (n * r + 3 * M) ** 2)
+    )
 
 
 def dVdr(r, M, n):
@@ -74,9 +78,14 @@ def dVdr(r, M, n):
     dVdr : float
         Derivative of potential [km^-3].
     """
-    return (432*M**5 + 54*(10*n - 3)*M**4*r + 18*n*(14*n - 11)*M**3*r**2
-            + 6*n**2*(10*n - 13)*M**2*r**3 + 6*n**3*(2*n - 1)*M*r**4
-            - 4*n**3*(n + 1)*r**5)/(r**5*(n*r + 3*M)**3)
+    return (
+        432 * M**5
+        + 54 * (10 * n - 3) * M**4 * r
+        + 18 * n * (14 * n - 11) * M**3 * r**2
+        + 6 * n**2 * (10 * n - 13) * M**2 * r**3
+        + 6 * n**3 * (2 * n - 1) * M * r**4
+        - 4 * n**3 * (n + 1) * r**5
+    ) / (r**5 * (n * r + 3 * M) ** 3)
 
 
 def U(r, M, n, omega2):
@@ -98,7 +107,9 @@ def U(r, M, n, omega2):
     U : complex
         Potential [km^-2].
     """
-    return (1 - 2*M/r)**(-2)*(omega2 - V(r, M, n) + 2*M/r**3 - 3*M**2/r**4)
+    return (1 - 2 * M / r) ** (-2) * (
+        omega2 - V(r, M, n) + 2 * M / r**3 - 3 * M**2 / r**4
+    )
 
 
 def dUdr(r, M, n, omega2):
@@ -120,8 +131,11 @@ def dUdr(r, M, n, omega2):
     dUdr : complex
         Derivative of potential [km^-3].
     """
-    return (2*M*(6*M**2 - 8*M*r + 3*r**2 + 2*omega2*r**4) - 4*M*V(r, M, n)*r**4
-            + (r - 2*M)*dVdr(r, M, n)*r**5)/(r*(2*M - r))**3
+    return (
+        2 * M * (6 * M**2 - 8 * M * r + 3 * r**2 + 2 * omega2 * r**4)
+        - 4 * M * V(r, M, n) * r**4
+        + (r - 2 * M) * dVdr(r, M, n) * r**5
+    ) / (r * (2 * M - r)) ** 3
 
 
 def modified_zerilli(rho, y, R, M, n, omega):
@@ -152,11 +166,12 @@ def modified_zerilli(rho, y, R, M, n, omega):
     """
     q, dqdrho = y
 
-    theta = -np.arctan(omega.imag/omega.real)
-    r = R + rho*np.exp(1j*theta)
+    theta = -np.arctan(omega.imag / omega.real)
+    r = R + rho * np.exp(1j * theta)
 
-    d2qdrho2 = (3*dqdrho**2/(2*q)
-                - 2*q*np.exp(2j*theta)*(q**2 - U(r, M, n, omega**2)))
+    d2qdrho2 = 3 * dqdrho**2 / (2 * q) - 2 * q * np.exp(2j * theta) * (
+        q**2 - U(r, M, n, omega**2)
+    )
 
     return [dqdrho, d2qdrho2]
 
@@ -186,12 +201,17 @@ def jac_modified_zerilli(rho, y, R, M, n, omega):
     """
     q, dqdrho = y
 
-    theta = -np.arctan(omega.imag/omega.real)
-    r = R + rho*np.exp(1j*theta)
+    theta = -np.arctan(omega.imag / omega.real)
+    r = R + rho * np.exp(1j * theta)
 
-    return [[0, 1],
-            [- 3/2*(dqdrho/q)**2
-             - 2*np.exp(2j*theta)*(3*q**2 - U(r, M, n, omega**2)), 3*dqdrho/q]]
+    return [
+        [0, 1],
+        [
+            -3 / 2 * (dqdrho / q) ** 2
+            - 2 * np.exp(2j * theta) * (3 * q**2 - U(r, M, n, omega**2)),
+            3 * dqdrho / q,
+        ],
+    ]
 
 
 def solve_perturbations_exterior(R, M, n, omega):
@@ -227,19 +247,25 @@ def solve_perturbations_exterior(R, M, n, omega):
     [1] Kokkotas and Schutz (1992) "W-modes: a new family of normal modes of
         pulsating relativistic stars," Mon. Not. R. Astron. Soc. 255, 119.
     """
-    theta = -np.arctan(omega.imag/omega.real)
+    theta = -np.arctan(omega.imag / omega.real)
     rhoinf = 50 / abs(omega)
-    N = 10 / abs(omega*M)
+    N = 10 / abs(omega * M)
     step = rhoinf / N
-    rinf = R + rhoinf*np.exp(1j*theta)
+    rinf = R + rhoinf * np.exp(1j * theta)
     Uinf = U(rinf, M, n, omega**2)
     dUdrinf = dUdr(rinf, M, n, omega**2)
 
-    sol = solve_ivp(modified_zerilli, [rhoinf, 0],
-                    [Uinf**(1/2), np.exp(1j*theta)*dUdrinf/(2*Uinf**(1/2))],
-                    args=(R, M, n, omega),
-                    method='BDF', max_step=step, rtol=1e-11, atol=1e-11,
-                    jac=jac_modified_zerilli)
+    sol = solve_ivp(
+        modified_zerilli,
+        [rhoinf, 0],
+        [Uinf ** (1 / 2), np.exp(1j * theta) * dUdrinf / (2 * Uinf ** (1 / 2))],
+        args=(R, M, n, omega),
+        method="BDF",
+        max_step=step,
+        rtol=1e-11,
+        atol=1e-11,
+        jac=jac_modified_zerilli,
+    )
     return sol
 
 
@@ -266,10 +292,10 @@ def transformation(r, x, M, n):
         Derivative of function `Z` with respect to tortoise coordinate `rstar`
         [dimensionless] at `r`.
     """
-    g = (n*(n + 1)*r**2 + 3*n*M*r + 6*M**2)/(r**2*(n*r + 3*M))
-    h = (n*r**2 - 3*n*M*r - 3*M**2)/(r*(r - 2*M)*(n*r + 3*M))
-    k = r/(r - 2*M)
-    A = np.array([[1, -k], [-g, h]])/(h - g*k)
+    g = (n * (n + 1) * r**2 + 3 * n * M * r + 6 * M**2) / (r**2 * (n * r + 3 * M))
+    h = (n * r**2 - 3 * n * M * r - 3 * M**2) / (r * (r - 2 * M) * (n * r + 3 * M))
+    k = r / (r - 2 * M)
+    A = np.array([[1, -k], [-g, h]]) / (h - g * k)
     b = A @ x
     return b
 
@@ -297,7 +323,7 @@ def Ain(r, q, dqdr, Z, dZdrstar, M):
     Ain : complex
         Amplitude of ingoing radiation [dimensionless] at `r`.
     """
-    return r*((M/r**2 + (1 - 2*M/r)*(dqdr/(2*q) + 1j*q))*Z + dZdrstar)
+    return r * ((M / r**2 + (1 - 2 * M / r) * (dqdr / (2 * q) + 1j * q)) * Z + dZdrstar)
 
 
 def Aout(r, q, dqdr, Z, dZdrstar, M):
@@ -323,4 +349,6 @@ def Aout(r, q, dqdr, Z, dZdrstar, M):
     Aout : complex
         Amplitude of outgoing radiation [dimensionless] at `r`.
     """
-    return -r*((M/r**2 + (1 - 2*M/r)*(dqdr/(2*q) - 1j*q))*Z + dZdrstar)
+    return -r * (
+        (M / r**2 + (1 - 2 * M / r) * (dqdr / (2 * q) - 1j * q)) * Z + dZdrstar
+    )

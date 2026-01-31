@@ -2,10 +2,16 @@ import numpy as np
 from scipy.optimize import minimize
 
 from .perturbations_interior import (
-        solve_perturbations_interior,
-        solve_perturbations_interior_low_frequency, X)
+    solve_perturbations_interior,
+    solve_perturbations_interior_low_frequency,
+)
+from .perturbations_interior import X as X_ext
 from .perturbations_exterior import (
-        solve_perturbations_exterior, transformation, Ain, Aout)
+    solve_perturbations_exterior,
+    transformation,
+    Ain,
+    Aout,
+)
 from .muller import muller
 
 
@@ -55,6 +61,7 @@ class Mode:
     ```
     specialist formulation of interior perturbation equations is used.
     """
+
     def __init__(self, background):
         self.background = background
 
@@ -68,12 +75,12 @@ class Mode:
         self.r0 = None
         self.__rmatch = None
 
-    def eigenproblem(self, l, omegaguess):
+    def eigenproblem(self, ell, omegaguess):
         """Defines function to find root of for eigenfrequency.
 
         Parameters
         ----------
-        l : int
+        ell : int
             Quantum number [dimensionless].
         omegaguess : complex
             Guess of mode frequency [km^-1].
@@ -86,37 +93,38 @@ class Mode:
         R = self.background.R
         M = self.background.M
 
-        if omegaguess.real*M < 0.01:
+        if omegaguess.real * M < 0.01:
             interior_solver = solve_perturbations_interior_low_frequency
         else:
             interior_solver = solve_perturbations_interior
 
         # interior
-        (self.__x,
-         self.__sol1, self.__sol2,
-         self.__sol3, self.__sol4, self.__sol5) = interior_solver(
-                self.background, l, omegaguess**2)
-        H1, K = (self.__x[2]*self.__sol3.y[:2, 0]
-                 + self.__x[3]*self.__sol4.y[:2, 0]
-                 + self.__x[4]*self.__sol5.y[:2, 0])
+        (self.__x, self.__sol1, self.__sol2, self.__sol3, self.__sol4, self.__sol5) = (
+            interior_solver(self.background, ell, omegaguess**2)
+        )
+        H1, K = (
+            self.__x[2] * self.__sol3.y[:2, 0]
+            + self.__x[3] * self.__sol4.y[:2, 0]
+            + self.__x[4] * self.__sol5.y[:2, 0]
+        )
 
         # exterior
-        n = (l + 2)*(l - 1)/2
+        n = (ell + 2) * (ell - 1) / 2
         sol = solve_perturbations_exterior(R, M, n, omegaguess)
         q, dqdrho = sol.y[:, -1]
-        theta = -np.arctan(omegaguess.imag/omegaguess.real)
-        dqdr = np.exp(-1j*theta)*dqdrho
+        theta = -np.arctan(omegaguess.imag / omegaguess.real)
+        dqdr = np.exp(-1j * theta) * dqdrho
         Z, dZdrstar = transformation(R, (H1, K), M, n)
 
-        return Ain(R, q, dqdr, Z, dZdrstar, M)/Aout(R, q, dqdr, Z, dZdrstar, M)
+        return Ain(R, q, dqdr, Z, dZdrstar, M) / Aout(R, q, dqdr, Z, dZdrstar, M)
 
-    def spectrum(self, l, omegaguess):
+    def spectrum(self, ell, omegaguess):
         """Calculate "spectrum" using amplitude of ingoing radiation at
         surface.
 
         Parameters
         ----------
-        l : int
+        ell : int
             Quantum number [dimensionless].
         omegaguess : complex
             Guess of mode frequency [km^-1].
@@ -129,36 +137,37 @@ class Mode:
         R = self.background.R
         M = self.background.M
 
-        if omegaguess.real*M < 0.01:
+        if omegaguess.real * M < 0.01:
             interior_solver = solve_perturbations_interior_low_frequency
         else:
             interior_solver = solve_perturbations_interior
 
         # interior
-        (self.__x,
-         self.__sol1, self.__sol2,
-         self.__sol3, self.__sol4, self.__sol5) = interior_solver(
-                self.background, l, omegaguess**2)
-        H1, K = (self.__x[2]*self.__sol3.y[:2, 0]
-                 + self.__x[3]*self.__sol4.y[:2, 0]
-                 + self.__x[4]*self.__sol5.y[:2, 0])
+        (self.__x, self.__sol1, self.__sol2, self.__sol3, self.__sol4, self.__sol5) = (
+            interior_solver(self.background, ell, omegaguess**2)
+        )
+        H1, K = (
+            self.__x[2] * self.__sol3.y[:2, 0]
+            + self.__x[3] * self.__sol4.y[:2, 0]
+            + self.__x[4] * self.__sol5.y[:2, 0]
+        )
 
         # exterior
-        n = (l + 2)*(l - 1)/2
+        n = (ell + 2) * (ell - 1) / 2
         sol = solve_perturbations_exterior(R, M, n, omegaguess)
         q, dqdrho = sol.y[:, -1]
-        theta = -np.arctan(omegaguess.imag/omegaguess.real)
-        dqdr = np.exp(-1j*theta)*dqdrho
+        theta = -np.arctan(omegaguess.imag / omegaguess.real)
+        dqdr = np.exp(-1j * theta) * dqdrho
         Z, dZdrstar = transformation(R, (H1, K), M, n)
 
         return Ain(R, q, dqdr, Z, dZdrstar, M)
 
-    def solve(self, l, omegaguess, method='Muller'):
+    def solve(self, ell, omegaguess, method="Muller"):
         """Solve for mode eigenfrequency and eigenfunctions.
 
         Parameters
         ----------
-        l : int
+        ell : int
             Quantum number [dimensionless].
         omegaguess : complex
             Guess of mode frequency [km^-1]. If `method` is 'Muller', this must
@@ -170,7 +179,7 @@ class Mode:
             * 'Simplex'.
 
             Default is 'Muller'.
-        
+
         Notes
         -----
         At very low frequencies
@@ -180,38 +189,45 @@ class Mode:
         only real values are considered.
         """
         # solve eigenfrequency
-        if method == 'Muller':
+        if method == "Muller":
+
             def fmuller(omegaguess):
-                return self.eigenproblem(l, omegaguess)
+                return self.eigenproblem(ell, omegaguess)
 
             res = muller(fmuller, omegaguess, xtol=1e-8, ftol=1e-5)
             omega = res.root
-        elif method == 'Simplex':
+        elif method == "Simplex":
             M = self.background.M
             # ignore damping for very low frequencies
-            if omegaguess.real*M < 0.02:
-                def fsimplex(x):
-                    return abs(self.eigenproblem(l, x[0]))
+            if omegaguess.real * M < 0.02:
 
-                res = minimize(fsimplex, (omegaguess.real,),
-                               method='Nelder-Mead',
-                               options={'xatol': 1e-8, 'fatol': 1e-5,
-                                        'disp': False})
+                def fsimplex(x):
+                    return abs(self.eigenproblem(ell, x[0]))
+
+                res = minimize(
+                    fsimplex,
+                    (omegaguess.real,),
+                    method="Nelder-Mead",
+                    options={"xatol": 1e-8, "fatol": 1e-5, "disp": False},
+                )
                 omega = res.x[0]
             else:
-                def fsimplex(x):
-                    return abs(self.eigenproblem(l, x[0] + 1j*x[1]))
 
-                res = minimize(fsimplex, (omegaguess.real, omegaguess.imag),
-                               method='Nelder-Mead',
-                               options={'xatol': 1e-8, 'fatol': 1e-5,
-                                        'disp': False})
-                omega = res.x[0] + 1j*res.x[1]
+                def fsimplex(x):
+                    return abs(self.eigenproblem(ell, x[0] + 1j * x[1]))
+
+                res = minimize(
+                    fsimplex,
+                    (omegaguess.real, omegaguess.imag),
+                    method="Nelder-Mead",
+                    options={"xatol": 1e-8, "fatol": 1e-5, "disp": False},
+                )
+                omega = res.x[0] + 1j * res.x[1]
         else:
             raise ValueError("method must be either 'Muller' or 'Simplex'")
 
         self.omega = omega
-        self.l = l
+        self.ell = ell
 
         self.r0 = self.__sol1.t[0]
         self.__rmatch = self.__sol1.t[-1]
@@ -230,14 +246,17 @@ class Mode:
             Metric perturbation `H1` [dimensionless].
         """
         if self.r0 <= r <= self.__rmatch:
-            H1, K, W, _ = (self.__x[0]*self.__sol1.sol(r)
-                           + self.__x[1]*self.__sol2.sol(r))
+            H1, K, W, _ = self.__x[0] * self.__sol1.sol(r) + self.__x[
+                1
+            ] * self.__sol2.sol(r)
         elif self.__rmatch < r <= self.background.R:
-            H1, K, W, _ = (self.__x[2]*self.__sol3.sol(r)
-                           + self.__x[3]*self.__sol4.sol(r)
-                           + self.__x[4]*self.__sol5.sol(r))
+            H1, K, W, _ = (
+                self.__x[2] * self.__sol3.sol(r)
+                + self.__x[3] * self.__sol4.sol(r)
+                + self.__x[4] * self.__sol5.sol(r)
+            )
         else:
-            raise ValueError('r is outside range')
+            raise ValueError("r is outside range")
         return H1
 
     def K(self, r):
@@ -254,14 +273,17 @@ class Mode:
             Metric perturbation `K` [dimensionless].
         """
         if self.r0 <= r <= self.__rmatch:
-            H1, K, W, _ = (self.__x[0]*self.__sol1.sol(r)
-                           + self.__x[1]*self.__sol2.sol(r))
+            H1, K, W, _ = self.__x[0] * self.__sol1.sol(r) + self.__x[
+                1
+            ] * self.__sol2.sol(r)
         elif self.__rmatch < r <= self.background.R:
-            H1, K, W, _ = (self.__x[2]*self.__sol3.sol(r)
-                           + self.__x[3]*self.__sol4.sol(r)
-                           + self.__x[4]*self.__sol5.sol(r))
+            H1, K, W, _ = (
+                self.__x[2] * self.__sol3.sol(r)
+                + self.__x[3] * self.__sol4.sol(r)
+                + self.__x[4] * self.__sol5.sol(r)
+            )
         else:
-            raise ValueError('r is outside range')
+            raise ValueError("r is outside range")
         return K
 
     def W(self, r):
@@ -278,14 +300,17 @@ class Mode:
             Radial displacement function `W` [km^2].
         """
         if self.r0 <= r <= self.__rmatch:
-            H1, K, W, _ = (self.__x[0]*self.__sol1.sol(r)
-                           + self.__x[1]*self.__sol2.sol(r))
+            H1, K, W, _ = self.__x[0] * self.__sol1.sol(r) + self.__x[
+                1
+            ] * self.__sol2.sol(r)
         elif self.__rmatch < r <= self.background.R:
-            H1, K, W, _ = (self.__x[2]*self.__sol3.sol(r)
-                           + self.__x[3]*self.__sol4.sol(r)
-                           + self.__x[4]*self.__sol5.sol(r))
+            H1, K, W, _ = (
+                self.__x[2] * self.__sol3.sol(r)
+                + self.__x[3] * self.__sol4.sol(r)
+                + self.__x[4] * self.__sol5.sol(r)
+            )
         else:
-            raise ValueError('r is outside range')
+            raise ValueError("r is outside range")
         return W
 
     def X(self, r):
@@ -302,16 +327,17 @@ class Mode:
             Lagrangian pressure perturbation function `X` [km^-2].
         """
         if self.r0 <= r <= self.__rmatch:
-            y = (self.__x[0]*self.__sol1.sol(r)
-                 + self.__x[1]*self.__sol2.sol(r))
-            if self.omega.real*self.background.M < 0.01:
-                return X(r, y, self.background, self.l, self.omega**2)
+            y = self.__x[0] * self.__sol1.sol(r) + self.__x[1] * self.__sol2.sol(r)
+            if self.omega.real * self.background.M < 0.01:
+                return X_ext(r, y, self.background, self.ell, self.omega**2)
             else:
                 return y[-1]
         elif self.__rmatch < r <= self.background.R:
-            H1, K, W, X = (self.__x[2]*self.__sol3.sol(r)
-                           + self.__x[3]*self.__sol4.sol(r)
-                           + self.__x[4]*self.__sol5.sol(r))
+            H1, K, W, X = (
+                self.__x[2] * self.__sol3.sol(r)
+                + self.__x[3] * self.__sol4.sol(r)
+                + self.__x[4] * self.__sol5.sol(r)
+            )
             return X
         else:
-            raise ValueError('r is outside range')
+            raise ValueError("r is outside range")

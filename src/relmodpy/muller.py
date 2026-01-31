@@ -1,6 +1,6 @@
 class Results:
     """Represents root-finding result.
-    
+
     Attributes
     ----------
     root : float
@@ -12,6 +12,7 @@ class Results:
     flag : str
         Description of cause of termination.
     """
+
     def __init__(self, root, iterations, converged, flag):
         self.root = root
         self.iterations = iterations
@@ -54,44 +55,48 @@ def muller(f, x, xtol=1e-5, ftol=1e-5, maxiter=50):
         http://numerical.recipes/book.html).
     """
     if xtol <= 0:
-        raise ValueError(f'xtol is too small (xtol = {xtol} <= 0)')
+        raise ValueError(f"xtol is too small (xtol = {xtol} <= 0)")
     if ftol <= 0:
-        raise ValueError(f'ftol is too small (ftol = {ftol} <= 0)')
+        raise ValueError(f"ftol is too small (ftol = {ftol} <= 0)")
     if not isinstance(maxiter, int):
-        raise ValueError('maxiter must be integer')
+        raise ValueError("maxiter must be integer")
     if maxiter < 1:
-        raise ValueError('maxiter must be greater than 0')
+        raise ValueError("maxiter must be greater than 0")
 
     ximinus2, ximinus1, xi = x
     yiminus2, yiminus1, yi = f(ximinus2), f(ximinus1), f(xi)
 
     converged = False
-    flag = 'Routine did not converge'
+    flag = "Routine did not converge"
 
     for i in range(maxiter):
-        q = (xi - ximinus1)/(ximinus1 - ximinus2)
-        A = q*yi - q*(1 + q)*yiminus1 + q**2*yiminus2
-        B = (2*q + 1)*yi - (1 + q)**2*yiminus1 + q**2*yiminus2
-        C = (1 + q)*yi
+        q = (xi - ximinus1) / (ximinus1 - ximinus2)
+        A = q * yi - q * (1 + q) * yiminus1 + q**2 * yiminus2
+        B = (2 * q + 1) * yi - (1 + q) ** 2 * yiminus1 + q**2 * yiminus2
+        C = (1 + q) * yi
 
-        denomplus = B + (B**2 - 4*A*C)**(1/2)
-        denomminus = B - (B**2 - 4*A*C)**(1/2)
+        denomplus = B + (B**2 - 4 * A * C) ** (1 / 2)
+        denomminus = B - (B**2 - 4 * A * C) ** (1 / 2)
 
         if abs(denomplus) >= abs(denomminus):
-            xiplus1 = xi - (xi - ximinus1)*2*C/denomplus
+            xiplus1 = xi - (xi - ximinus1) * 2 * C / denomplus
         else:
-            xiplus1 = xi - (xi - ximinus1)*2*C/denomminus
+            xiplus1 = xi - (xi - ximinus1) * 2 * C / denomminus
 
         yiplus1 = f(xiplus1)
 
         if ftol >= abs(yiplus1):
-            flag = ('Routine has reached desired tolerance '
-                    f'in function value ({abs(yiplus1)} <= {ftol})')
+            flag = (
+                "Routine has reached desired tolerance "
+                f"in function value ({abs(yiplus1)} <= {ftol})"
+            )
             converged = True
             break
         if xtol >= abs(xiplus1 - xi):
-            flag = ('Routine has reached desired tolerance '
-                    f'in root value ({abs(xiplus1 - xi)} <= {xtol})')
+            flag = (
+                "Routine has reached desired tolerance "
+                f"in root value ({abs(xiplus1 - xi)} <= {xtol})"
+            )
             converged = True
             break
 
