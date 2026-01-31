@@ -1,12 +1,16 @@
 [project]
 name = "relmodpy"
-version = "0.1.0"
-description = "Add your description here"
+version = "0.2.0"
+description = "Computing the oscillation modes of relativistic stars in Python."
 readme = "README.md"
 requires-python = ">=3.14"
 dependencies = [
     "numpy>=2.4.1",
     "scipy>=1.17.0",
+]
+license = {file = "LICENSE"}
+authors = [
+    {name = "Fabian Gittins"}
 ]
 
 [build-system]
